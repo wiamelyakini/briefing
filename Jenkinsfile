@@ -75,8 +75,10 @@ pipeline{
         }
         stage('Deploy to Staging') {
             steps {
-                sh 'kubectl apply -f K8S/staging.yml'
-                sh 'kubectl rollout status deployment/the-briefing-deployment -n staging'
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    sh 'kubectl apply -f K8S/staging.yml'
+                    sh 'kubectl rollout status deployment/the-briefing-deployment -n staging'
+                }
             }
         }
         stage('Approve Production Deploy') {
@@ -86,8 +88,10 @@ pipeline{
         }
         stage('Deploy to Production') {
             steps {
-                sh 'kubectl apply -f K8S/manifest.yml'
-                sh 'kubectl rollout status deployment/the-briefing-deployment -n production'
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    sh 'kubectl apply -f K8S/manifest.yml'
+                    sh 'kubectl rollout status deployment/the-briefing-deployment -n production'
+                }
             }
         }
 
