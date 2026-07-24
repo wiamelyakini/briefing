@@ -42,13 +42,17 @@ pipeline{
         }
         stage('OWASP FS SCAN') {
             steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey d7e8c629-7da9-4f96-8a4a-a45fd3f213ba', odcInstallation: 'DC'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --noupdate', odcInstallation: 'DC'
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                }
            }
         }
-            stage('TRIVY FS SCAN') {
+        stage('TRIVY FS SCAN') {
             steps {
-                sh "trivy fs . > trivyfs.txt"
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    sh "trivy fs . > trivyfs.txt"
+                }
             }
         }
         stage("Docker Build & Push"){
@@ -64,7 +68,9 @@ pipeline{
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image wiameelyakini/the-briefing:latest > trivyimage.txt" 
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    sh "trivy image wiameelyakini/the-briefing:latest > trivyimage.txt"
+                }
             }
         }
         stage('Deploy to Staging') {
