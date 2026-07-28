@@ -12,6 +12,7 @@ COPY src/ ./src/
 
 # Run as non-root user to reduce blast radius of any compromise
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup \
+    && mkdir -p /app/node_modules/.cache \
     && chown -R appuser:appgroup /app
 USER appuser
 
